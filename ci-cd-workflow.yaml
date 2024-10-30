@@ -1,0 +1,148 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: proyecto-cicd-
+spec:
+  serviceAccountName: argo-workflow  # Añadido el ServiceAccount aquí
+  entrypoint: cicd-pipeline
+  podGC:
+    strategy: OnWorkflowSuccess
+  templates:
+    - name: cicd-pipeline
+      dag:
+        tasks:
+          - name: clone-repo
+            template: clone-repo
+
+          - name: build-image
+            dependencies: [clone-repo]
+            template: build-image
+            arguments:
+              artifacts:
+                - name: source-code
+                  from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
+
+          - name: run-tests
+            dependencies: [build-image]
+            template: run-tests
+            arguments:
+              artifacts:
+                - name: source-code
+                  from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
+
+          - name: lint
+            dependencies: [build-image]
+            template: lint
+            arguments:
+              artifacts:
+                - name: source-code
+                  from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
+
+          - name: deploy
+            dependencies: [run-tests, lint]
+            template: deploy
+            arguments:
+              artifacts:
+                - name: source-code
+                  from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
+
+    # Paso 0: Clonar el repositorio
+    - name: clone-repo
+      outputs:
+        artifacts:
+          - name: source-code
+            path: /src
+      script:
+        image: alpine/git:latest
+        command: [sh]
+        source: |
+          git clone https://github.com/MiltonRPG/proyecto-cicd.git /src
+
+    # Paso 1: Construir la imagen Docker
+    - name: build-image
+      inputs:
+        artifacts:
+          - name: source-code
+            path: /src
+      volumes:
+        - name: docker-sock
+          emptyDir: {}
+      container:
+        image: docker:20.10.7
+        command: [sh, -c]
+        args:
+          - |
+            ls -la /src
+            cd /src;
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD;
+            docker build -t miltonrpg/proyecto-cicd:latest .;
+            docker push miltonrpg/proyecto-cicd:latest;
+        env:
+          - name: DOCKER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: docker-credentials
+                key: username
+          - name: DOCKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: docker-credentials
+                key: password
+        volumeMounts:
+          - name: docker-sock
+            mountPath: /var/run/
+      sidecars:
+        - name: dind
+          image: docker:20.10.7-dind
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/
+
+    # Paso 2: Ejecutar pruebas
+    - name: run-tests
+      inputs:
+        artifacts:
+          - name: source-code
+            path: /src
+      script:
+        image: node:14
+        command: [sh]
+        source: |
+          cd /src;
+          npm install;
+          npm test;
+
+    # Paso 3: Linting
+    - name: lint
+      inputs:
+        artifacts:
+          - name: source-code
+            path: /src
+      script:
+        image: node:14
+        command: [sh]
+        source: |
+          cd /src;
+          npm install;
+          npx eslint .
+
+    # Paso 4: Desplegar en Kubernetes
+    - name: deploy
+      inputs:
+        artifacts:
+          - name: source-code
+            path: /src
+      container:
+        image: bitnami/kubectl:latest
+        command: [sh, -c]
+        args:
+          - |
+            cd /src/k8s;
+            kubectl apply -f deployment.yaml;
+            kubectl apply -f service.yaml;
+
+
+
+
