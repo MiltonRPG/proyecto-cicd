@@ -107,7 +107,7 @@ spec:
           - name: source-code
             path: /src
       script:
-        image: node:14
+        image: node:18  # Cambiado de node:14 a node:18
         command: [sh]
         source: |
           cd /src;
@@ -121,7 +121,7 @@ spec:
           - name: source-code
             path: /src
       script:
-        image: node:14
+        image: node:18  # Cambiado de node:14 a node:18
         command: [sh]
         source: |
           cd /src;
@@ -142,6 +142,7 @@ spec:
             cd /src/k8s;
             kubectl apply -f deployment.yaml;
             kubectl apply -f service.yaml;
+
 
 
 
