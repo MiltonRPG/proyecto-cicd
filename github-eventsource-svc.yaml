@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-eventsource-svc
+  namespace: argo-events
+spec:
+  selector:
+    eventsource-name: github-eventsource
+    controller: eventsource-controller
+  ports:
+    - protocol: TCP
+      port: 12000
+      targetPort: 12000

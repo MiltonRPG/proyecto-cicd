@@ -6,4 +6,17 @@ metadata:
 spec:
   nats:
     native:
-      replicas: 1
+      replicas: 3
+      config: |
+        cluster {
+          name: "eventbus-cluster"  # Nombre de cluster fijo
+          listen: 0.0.0.0:6222
+        }
+        server_name: "eventbus-default-stan"
+        store {
+          type: "file"
+          file {
+            directory: "/data/stan/store"
+          }
+        }
+

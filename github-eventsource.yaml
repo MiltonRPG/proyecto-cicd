@@ -6,18 +6,16 @@ metadata:
 spec:
   github:
     example:
-      webhook:
-        endpoint: /webhook
-        method: POST
-        port: "12000"
+      apiToken:
+        name: github-token
+        key: token
       events:
         - push
       repositories:
         - owner: MiltonRPG
           repo: proyecto-cicd
-      apiToken:
-        name: github-token
-        key: token
-      logLevel: debug  
-        #Comentario
-        #Prueba del Webhook con Argo Events
+      webhook:
+        endpoint: /webhook
+        method: POST
+        port: 12000
+
