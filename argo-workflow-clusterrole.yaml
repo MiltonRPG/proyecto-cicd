@@ -15,3 +15,4 @@ rules:
       - workflows
       - workflows/status
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    #Comentario
