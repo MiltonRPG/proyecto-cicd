@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-workflow-binding
+  namespace: argo-events
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-workflow  # Cambia el rol según sea necesario
+subjects:
+  - kind: ServiceAccount
+    name: argo-workflow
+    namespace: argo-events
