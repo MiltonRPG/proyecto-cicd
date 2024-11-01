@@ -18,4 +18,5 @@ spec:
       apiToken:
         name: github-token
         key: token
+      logLevel: debug  
         #Comentario
