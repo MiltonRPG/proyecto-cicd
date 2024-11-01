@@ -10,8 +10,8 @@ spec:
     app.kubernetes.io/component: controller-manager
     app.kubernetes.io/instance: argo-events
   ports:
-    - port: 7777
-      targetPort: 7777
+    - port: 12000
+      targetPort: 12000
       protocol: TCP
       nodePort: 31234
 
