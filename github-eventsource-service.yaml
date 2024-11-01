@@ -8,10 +8,10 @@ spec:
   selector:
     app.kubernetes.io/name: argo-events-controller-manager
     app.kubernetes.io/component: controller-manager
+    app.kubernetes.io/instance: argo-events
   ports:
     - port: 7777
       targetPort: 7777
       protocol: TCP
-      nodePort: 31234  # Ajusta si ya está en uso
-#ComentarioPrueba
+      nodePort: 31234
 
