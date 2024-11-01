@@ -11,3 +11,5 @@ spec:
     - protocol: TCP
       port: 12000
       targetPort: 12000
+#comentarios
+
