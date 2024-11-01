@@ -30,7 +30,6 @@ spec:
                       tasks:
                         - name: clone-repo
                           template: clone-repo
-
                         - name: build-image
                           dependencies: [clone-repo]
                           template: build-image
@@ -38,7 +37,6 @@ spec:
                             artifacts:
                               - name: source-code
                                 from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
-
                         - name: run-tests
                           dependencies: [build-image]
                           template: run-tests
@@ -46,7 +44,6 @@ spec:
                             artifacts:
                               - name: source-code
                                 from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
-
                         - name: lint
                           dependencies: [build-image]
                           template: lint
@@ -54,7 +51,6 @@ spec:
                             artifacts:
                               - name: source-code
                                 from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
-
                         - name: deploy
                           dependencies: [run-tests, lint]
                           template: deploy
@@ -63,7 +59,7 @@ spec:
                               - name: source-code
                                 from: "{{tasks.clone-repo.outputs.artifacts.source-code}}"
 
-                  # Paso 0: Clonar el repositorio
+                  # Clonar repositorio
                   - name: clone-repo
                     outputs:
                       artifacts:
@@ -75,7 +71,7 @@ spec:
                       source: |
                         git clone https://github.com/MiltonRPG/proyecto-cicd.git /src
 
-                  # Paso 1: Construir la imagen Docker
+                  # Construir la imagen Docker
                   - name: build-image
                     inputs:
                       artifacts:
@@ -108,7 +104,7 @@ spec:
                       - name: docker-sock
                         emptyDir: {}
 
-                  # Paso 2: Ejecutar pruebas
+                  # Ejecutar pruebas
                   - name: run-tests
                     inputs:
                       artifacts:
@@ -122,7 +118,7 @@ spec:
                         npm install;
                         npm test;
 
-                  # Paso 3: Linting
+                  # Linting
                   - name: lint
                     inputs:
                       artifacts:
@@ -136,7 +132,7 @@ spec:
                         npm install;
                         npx eslint .
 
-                  # Paso 4: Desplegar en Kubernetes
+                  # Desplegar en Kubernetes
                   - name: deploy
                     inputs:
                       artifacts:
@@ -150,4 +146,4 @@ spec:
                           cd /src/k8s;
                           kubectl apply -f deployment.yaml;
                           kubectl apply -f service.yaml;
-#Comentario
+
