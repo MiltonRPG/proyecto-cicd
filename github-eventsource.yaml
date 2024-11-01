@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github-eventsource
+  namespace: argo-events
+spec:
+  github:
+    example:
+      webhook:
+        endpoint: /webhook
+        method: POST
+        port: "12000"
+      events:
+        - push
+      repositories:
+        - owner: MiltonRPG
+          repo: proyecto-cicd
+      apiToken:
+        name: github-token
+        key: token
