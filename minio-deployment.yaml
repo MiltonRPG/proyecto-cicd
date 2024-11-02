@@ -1,7 +1,38 @@
+# PersistentVolume y PersistentVolumeClaim para almacenamiento persistente
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-pv
+  namespace: argo-events
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/data"  # Cambia esto a una ruta válida en tu nodo
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+  namespace: argo-events
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# MinIO Service
 apiVersion: v1
 kind: Service
 metadata:
   name: minio
+  namespace: argo-events
   labels:
     app: minio
 spec:
@@ -10,11 +41,15 @@ spec:
       targetPort: 9000
   selector:
     app: minio
+  type: ClusterIP
+
 ---
+# MinIO Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: minio
+  namespace: argo-events
 spec:
   replicas: 1
   selector:
@@ -43,6 +78,8 @@ spec:
               mountPath: /data
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: minio-pvc
+
 
 
